@@ -1,0 +1,19 @@
+{
+  "extends": [
+    "@rocketseat/eslint-config/node"
+  ],
+  "plugins": [
+    "simple-import-sort"
+  ],
+  "rules": {
+    "simple-import-sort/imports": "error",
+    "@typescript-eslint/no-explicit-any": "off",
+    "prettier/prettier": [
+      "off",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+    "no-useless-constructor": "off"
+  }
+}
