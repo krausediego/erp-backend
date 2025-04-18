@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsAlphanumeric, IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateClientRequestDto {
   @ApiProperty({
     example: 'jdoe',
   })
-  @IsAlphanumeric()
+  @IsString()
   @IsNotEmpty()
   name: string;
 
