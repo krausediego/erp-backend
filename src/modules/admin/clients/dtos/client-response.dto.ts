@@ -18,6 +18,6 @@ export class ClientResponseDto {
   @ApiProperty()
   email?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: ClientStatus })
   status: ClientStatus;
 }
