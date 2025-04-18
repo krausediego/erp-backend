@@ -13,7 +13,7 @@ export const PaginationParams = createParamDecorator(
       defaultLimit: 10,
       defaultOrder: {},
       defaultOrderDirection: 'ASC',
-      maxAllowedSize: 20,
+      maxAllowedSize: 50,
     },
     ctx: ExecutionContext,
   ) => {
