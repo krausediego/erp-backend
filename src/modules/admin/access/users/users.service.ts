@@ -66,7 +66,6 @@ export class UsersService {
         organizations: true,
       },
     });
-    console.log('USER ENTITY', userEntity);
 
     if (!userEntity) {
       throw new NotFoundException();
