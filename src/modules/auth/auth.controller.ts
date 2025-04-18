@@ -1,4 +1,4 @@
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, ValidationPipe } from '@nestjs/common';
 import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
@@ -6,12 +6,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 
 import { SkipAuth } from '.';
 import {
   AuthCredentialsRequestDto,
   LoginResponseDto,
-  RefreshTokenRequestDto,
   TokenDto,
   ValidateTokenRequestDto,
   ValidateTokenResponseDto,
@@ -35,10 +35,25 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Post('/login')
-  login(
+  async login(
     @Body(ValidationPipe) authCredentialsDto: AuthCredentialsRequestDto,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<LoginResponseDto> {
-    return this.authService.login(authCredentialsDto);
+    const loginResponse = await this.authService.login(authCredentialsDto);
+
+    response.cookie('access_token', loginResponse.token.accessToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 1000 * 60 * 5,
+    });
+
+    response.cookie('refresh_token', loginResponse.token.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return loginResponse;
   }
 
   @ApiOperation({ description: 'Renew access in the application' })
@@ -47,10 +62,19 @@ export class AuthController {
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Post('/token/refresh')
   async getNewToken(
-    @Body(ValidationPipe) refreshTokenDto: RefreshTokenRequestDto,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<TokenDto> {
-    const { refreshToken } = refreshTokenDto;
-    return this.tokenService.generateRefreshToken(refreshToken);
+    const refreshToken = request.cookies?.refresh_token;
+    const refreshResponse = await this.tokenService.generateRefreshToken(refreshToken);
+
+    response.cookie('access_token', refreshResponse.accessToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 1000 * 60 * 5,
+    });
+
+    return refreshResponse;
   }
 
   @ApiOperation({ description: 'Validate token' })

@@ -2,7 +2,6 @@ import { InvalidTokenException } from '@common/http/exceptions';
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { ExtractJwt } from 'passport-jwt';
 import { Observable } from 'rxjs';
 
 import { SKIP_AUTH } from '../constants';
@@ -32,9 +31,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
-    const accessToken = ExtractJwt.fromAuthHeaderAsBearerToken()(
-      context.switchToHttp().getRequest(),
-    );
+    const request = context.switchToHttp().getRequest();
+    const accessToken = request?.cookies?.access_token;
     if (!accessToken) {
       throw new InvalidTokenException();
     }
