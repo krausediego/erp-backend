@@ -20,18 +20,25 @@ export class ClientsRepository extends Repository<ClientEntity> {
       skip,
       limit: take,
       order,
-      params: { search },
+      params: { search, status },
     } = pagination;
+
     const query = this.createQueryBuilder('c')
-      .leftJoinAndSelect('c.user', 'u')
+      .leftJoinAndSelect('c.organization', 'u')
       .where('c.organization_id = :organizationId', { organizationId })
       .skip(skip)
       .take(take)
       .orderBy(order);
 
     if (search) {
-      query.andWhere('name ILIKE :search', {
+      query.andWhere('c.name ILIKE :search', {
         search: `%${search}%`,
+      });
+    }
+
+    if (status !== 'all') {
+      query.andWhere('c.status = :status', {
+        status,
       });
     }
 
